@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3001;
-const orders = require("./routes/orders");
+const tasks = require("./routes/tasks");
 const login = require("./routes/login");
 const connectDB = require('./db/connect')
 require('dotenv').config();
@@ -22,7 +22,7 @@ start();
 //middleware
 app.use(express.json());
 
-app.use("/api/v1/orders", orders);
+app.use("/api/v1/tasks", tasks);
 app.use("/api/v1/login", login);
 
 app.use(notFound);

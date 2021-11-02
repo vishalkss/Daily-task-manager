@@ -16,7 +16,10 @@ import RegistrationForm from "./Registration";
 import Modal from "@material-ui/core/Modal";
 import "./Login.css";
 import axios from "axios";
-const baseURL = "localhost:3001/api/v1/";
+import { ToastContainer, toast } from "react-toastify";
+import Header from "../Header/Header";
+import { Switch, Route, LocalStorage, Redirect, BrowserRouter as Router } from 'react-router-dom'
+const baseURL = "http://localhost:3001/api/v1/";
 
 function Copyright() {
   return (
@@ -78,11 +81,16 @@ const style = {
   p: 4,
 };
 
-export default function SignIn(props) {
+const Login = (props) => {
   const classes = useStyles();
   const [formStatus, setFormStatus] = useState(false);
   const [open, setOpen] = useState(false);
   const [modalStyle] = useState(getModalStyle);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loggedin, setloggedin] = useState(false);
+
+  console.log("i am gere");
 
   const handleFormStatus = () => {
     setFormStatus(true);
@@ -106,25 +114,66 @@ export default function SignIn(props) {
     </div>
   );
 
-  const loginUser = () =>{
-    axios.get(baseURL).then((response) => {
-      setPost(response.data);
-    });
-    localStorage.setItem("token", "Smith");
-  }
+  const loginUser = (email, password) => {
+    console.log("loginuser", email, password);
+    axios({
+      method: "post",
+      url: baseURL + "login/sign-in",
+      headers: { "Content-Type": "application/json" },
+      data: {
+        email: email,
+        password: password,
+      },
+    })
+      .then(function (response) {
+        let data = response.data;
+        localStorage.setItem("token", data.token);
+        setloggedin(true);
+        toast.success(data.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch(function (error) {
+        console.log("error", error);
+        toast.error(error.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(email, password);
+    loginUser(email, password);
+  };
+
+  if (loggedin) {
+    return <Redirect to="/Tasks" />;
+  }
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       {!formStatus && (
-        <div className={classes.paper}>
+        <div className={classes.paper} onSubmit={handleSubmit}>
           <Avatar className={classes.avatar}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <form className={classes.form} noValidate>
+          <form className={classes.form}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -135,6 +184,8 @@ export default function SignIn(props) {
               name="email"
               autoComplete="email"
               autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
               variant="outlined"
@@ -146,6 +197,8 @@ export default function SignIn(props) {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -157,7 +210,6 @@ export default function SignIn(props) {
               variant="contained"
               color="primary"
               className={classes.submit}
-              onClick={loginUser}
             >
               Sign In
             </Button>
@@ -196,6 +248,9 @@ export default function SignIn(props) {
           </Typography>
         </Box>
       </Modal>
+      <ToastContainer />
     </Container>
   );
-}
+};
+
+export default Login;

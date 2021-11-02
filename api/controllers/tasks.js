@@ -1,19 +1,29 @@
-const Orders = require("../models/orders");
+const Tasks = require("../models/tasks");
 const asyncWrapper = require("../middleware/async");
 
 const getAllOrders = asyncWrapper(async (req, res) => {
-    const orders = await Orders.find({}).sort({ delivery_date: -1 });
+    // const orders = await Tasks.find({}).sort({ due_date: -1 });
+    const orders = await Tasks.aggregate([
+        {
+            $project: {
+                due_date: { $dateToString: { format: "%G-%m-%d %H:%M:%S", date: "$due_date" } },
+                name: 1,
+                description: 1,
+                is_completed: 1,
+            }
+        }
+    ]);
     res.status(200).json({ orders });
 });
 
-const createOrder = asyncWrapper(async (req, res) => {
-    const orderID = req.body.order_id;
-    const orders = await Orders.findOne({ order_id: orderID });
-    if (orders) {
-        return res.status(404).json({ msg: `Order with same order id ${orderID} already exists` });
+const createTask = asyncWrapper(async (req, res, next) => {
+    const taskName = req.body.name;
+    const task = await Tasks.findOne({ name: taskName });
+    if (task) {
+        return res.status(404).json({ msg: `Task with same name ${taskName} already exists` });
     } else {
-        const orders = await Orders.create(req.body);
-        res.status(201).json({ orders });
+        const taskRes = await Tasks.create(req.body);
+        res.status(201).json({ msg:'Daily task create successfully' });
     }
 });
 
@@ -27,7 +37,7 @@ const getOrder = asyncWrapper(async (req, res) => {
     if (!pattern.test(deliveryDate)){
         return res.status(401).json({ msg: `Please enter delivery date in yyyy/mm/dd format` });
     }
-    const orders = await Orders.findOne({
+    const orders = await Tasks.findOne({
         delivery_date: deliveryDate
      });
     if (!orders) {
@@ -38,7 +48,7 @@ const getOrder = asyncWrapper(async (req, res) => {
 
 const deleteOrder = asyncWrapper(async (req, res) => {
     const { id: orderID } = req.params;
-    const orders = await Orders.findOneAndDelete({ order_id: orderID });
+    const orders = await Tasks.findOneAndDelete({ order_id: orderID });
     if (!orders) {
         return res.status(404).json({ msg: `No orders with id found` });
     }
@@ -47,7 +57,7 @@ const deleteOrder = asyncWrapper(async (req, res) => {
 
 const updateOrder = asyncWrapper(async (req, res) => {
     const { id: orderID } = req.params;
-    const orders = await Orders.findOneAndUpdate({ order_id: orderID }, req.body, {
+    const orders = await Tasks.findOneAndUpdate({ order_id: orderID }, req.body, {
         new: true,
         runValidators: true
     });
@@ -62,7 +72,7 @@ const getOrderbyId = asyncWrapper(async (req, res) => {
     console.log(
         "orderID", orderID
     )
-    const orders = await Orders.findOne({ order_id: orderID });
+    const orders = await Tasks.findOne({ order_id: orderID });
     if (!orders) {
         return res.status(404).json({ msg: `Order with  order id ${orderID} not found` });
     } else {
@@ -72,7 +82,7 @@ const getOrderbyId = asyncWrapper(async (req, res) => {
 
 module.exports = {
   getAllOrders,
-  createOrder,
+  createTask,
   getOrder,
   updateOrder,
   deleteOrder,

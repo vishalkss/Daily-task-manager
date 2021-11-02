@@ -1,8 +1,9 @@
 import logo from './logo.svg';
 import './App.css';
-import { Switch, Route, LocalStorage,Redirect, BrowserRouter as Router } from 'react-router-dom'
-import SignIn from "./components/Login/Login"
+import { Switch, Route, LocalStorage, Redirect, BrowserRouter as Router } from 'react-router-dom'
+import Login from "./components/Login/Login"
 import Header from "./components/Header/Header"
+import Task from "./components/Task/Task"
 
 
 function Display(props) {
@@ -13,22 +14,32 @@ function Display(props) {
   // console.log("here", props, props.isLoggedIn);
   // const isLoggedIn = props.isLoggedIn;
   const token = localStorage.getItem("token");
-  if (token!==null) {
+  if (token !== null) {
     return <Header />;
   }
-  return <SignIn />;
+  return <Login />;
 }
 
 export default function App() {
+  
+  const token = localStorage.getItem("token");
+  if (token !== null) {
+    <Redirect from="/" to="/Tasks"></Redirect>
+  }
   return (
-    <Display className="App" isLoggedIn={false}>
-      <Router>
+    <Router>
+      <div>
+        <Header />
         <Switch>
-          <Router exact path="/SignIn" component={SignIn}></Router>
-          <Redirect from="/" to="/SignIn"></Redirect>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/Tasks">
+            <Task />
+          </Route>
+          <Redirect from="/" to="/login"></Redirect>
         </Switch>
-
-      </Router>
-    </Display>
+      </div>
+    </Router>
   );
 }

@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const { getAllOrders,
-    createOrder,
+    createTask,
     getOrder,
     updateOrder,
     deleteOrder,
-    getOrderbyId} = require('../controllers/orders')
+    getOrderbyId} = require('../controllers/tasks')
 
 
-router.route("/list").get(getOrder)
-router.route("/create").post(createOrder)
+router.route("/get-all-tasks").get(getAllOrders)
+router.route("/create").post(createTask)
 router.route("/update/:id").patch(updateOrder)
 router.route("/delete/:id").delete(deleteOrder);
 router.route("/search/:id").get(getOrderbyId)

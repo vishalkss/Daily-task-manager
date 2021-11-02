@@ -5,17 +5,19 @@ var config = require('../config');
 
 const login = async (req,res) =>{
 
+    console.log("req.body", req.body);
+
     const login = await Users.find({ 'email': req.body.email});
 
     if (login.length===0){
-        res.status(401).send({ auth: false, token: "", user: login });
+        res.status(401).send({ auth: false, token: "", user: login, message:"User not found. Please SignUp to continue" });
     } else {
         let passwordIsValid = bcrypt.compareSync(req.body.password, login[0].password);
         if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
         var token = jwt.sign({ id: login[0]._id }, config.secret, {
             expiresIn: 86400 // expires in 24 hours
         });
-        res.status(200).send({ auth: true, token: token, user: login });
+        res.status(200).send({ auth: true, token: token, user: login, message: "User logged in Successfully" });
     }
 
 }
