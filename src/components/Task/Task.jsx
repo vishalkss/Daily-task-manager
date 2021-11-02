@@ -22,6 +22,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 import AddTask from "./AddTask";
+import EditTask from "./EditTask";
 import Modal from "@material-ui/core/Modal";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
@@ -238,6 +239,8 @@ export default function Task() {
   const [formStatus, setFormStatus] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [tasks, setTasks] = React.useState([]);
+  const [editFormStatus, setEditFormStatus] = React.useState(false);
+  const [editData, setEditData] = React.useState([]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -310,6 +313,11 @@ export default function Task() {
     setFormStatus(true);
   };
 
+  const handleEditFormStatus = () => {
+    setEditFormStatus(false);
+    setLoading(true);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     axios({
@@ -353,11 +361,22 @@ export default function Task() {
       });
   }, [loading]);
 
-  const EditTask = (event, data) => {
-    
-  };
+
+  const EditBody = (
+    <div>
+      <Box sx={style}>
+        <Typography id="modal-modal-title" variant="h6" component="h2">
+          Edit Task
+        </Typography>
+        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+          <EditTask handleClose={handleEditFormStatus} data={editData}></EditTask>
+        </Typography>
+      </Box>
+    </div>
+  );
 
   return (
+  <div>
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
@@ -385,6 +404,14 @@ export default function Task() {
             </Typography>
           </Box>
         </Modal>
+        <Modal
+          open={editFormStatus}
+          onClose={() => handleEditFormStatus}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          {EditBody}
+        </Modal>
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -402,7 +429,9 @@ export default function Task() {
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
                  rows.slice().sort(getComparator(order, orderBy)) */}
-              {tasks.slice().sort(getComparator(order, orderBy))
+              {tasks
+                .slice()
+                .sort(getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const isItemSelected = isSelected(row._id);
@@ -411,7 +440,6 @@ export default function Task() {
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => EditTask(event, row)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -439,10 +467,22 @@ export default function Task() {
                         {row._id}
                       </TableCell> */}
                       <TableCell align="left">{row.name}</TableCell>
-                      <TableCell align="left">{row.desciption}</TableCell>
+                      <TableCell align="left">{row.description}</TableCell>
                       <TableCell align="left">{row.due_date}</TableCell>
                       <TableCell align="left">
                         {row.is_completed ? "Yes" : "No"}
+                      </TableCell>
+                      <TableCell align="left">
+                        <Button
+                          onClick={() => {
+                            setEditFormStatus(true);
+                            setEditData(row);
+                          }}
+                          variant="contained"
+                          color="primary"
+                        >
+                          Edit
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
@@ -474,5 +514,6 @@ export default function Task() {
         label="Dense padding"
       />
     </Box>
+  </div>
   );
 }

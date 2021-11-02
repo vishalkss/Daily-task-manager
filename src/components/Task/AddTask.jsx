@@ -51,15 +51,15 @@ const AddTask = (props) => {
     axios({
       method: "post",
       url: baseURL + "tasks/create",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        "x-access-token": token
+        "x-access-token": token,
       },
       data: {
         name: name,
         description: description,
         due_date: date,
-        is_completed: 0
+        is_completed: 0,
       },
     })
       .then(function (response) {
@@ -135,6 +135,6 @@ const AddTask = (props) => {
       <ToastContainer />
     </div>
   );
-};
+};;
 
 export default AddTask;

@@ -10,7 +10,7 @@ const { getAllOrders,
 
 router.route("/get-all-tasks").get(getAllOrders)
 router.route("/create").post(createTask)
-router.route("/update/:id").patch(updateOrder)
+router.route("/update-task/:id").put(updateOrder)
 router.route("/delete/:id").delete(deleteOrder);
 router.route("/search/:id").get(getOrderbyId)
 
