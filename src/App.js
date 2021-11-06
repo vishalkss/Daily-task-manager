@@ -12,7 +12,7 @@ import axios from 'axios';
 
 
 function App(props) {
-  const [authLoading, setAuthLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const token = getToken();
@@ -20,7 +20,7 @@ function App(props) {
       return;
     }
 
-    axios.get(`http://localhost:3001/api/v1/login/verifyToken/${token}`).then(response => {
+    axios.get(`http://localhost:3001/api/v1/login/verify-token/${token}`).then(response => {
       setUserSession(response.data.token, response.data.user);
       setAuthLoading(false);
     }).catch(error => {

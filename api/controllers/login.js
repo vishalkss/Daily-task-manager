@@ -2,6 +2,7 @@ const Users = require("../models/login");
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('../config');
+const User = require("../models/login");
 
 const login = async (req,res) =>{
 
@@ -103,5 +104,26 @@ const cancelMeeting = async (req, res) => {
 
 }
 
+const verifyToken = async (req, res) => {
 
-module.exports = { login, registerUser, updateMeeting, cancelMeeting};
+    const { id: token } = req.params;
+
+    console.log("token", token);
+    if (!token)
+        return res.status(403).send({ auth: false, message: 'No token provided.' });
+
+    jwt.verify(token, config.secret, async function (err, decoded) {
+        if (err)
+            return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+
+        req.userId = decoded.id;
+        await User.findById(req.userId, { password: 0 }, function (err, user) {
+            if (err) return res.status(500).send("There was a problem finding the user.");
+            if (!user) return res.status(404).send("No user found.");
+            res.status(200).json({ user })
+        });
+    });
+
+}
+
+module.exports = { login, registerUser, updateMeeting, cancelMeeting, verifyToken};
