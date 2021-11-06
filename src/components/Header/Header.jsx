@@ -15,6 +15,9 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import { Switch, Route, LocalStorage, Redirect, BrowserRouter as Router } from 'react-router-dom'
+import Login from "../../components/Login/Login";
+import { getUser, removeUserSession } from "../../Utils/Common";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -56,7 +59,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function Header() {
+export default function Header(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -75,6 +78,15 @@ export default function Header() {
     setAnchorEl(null);
     handleMobileMenuClose();
   };
+
+  const logout = () => {
+     setAnchorEl(null);
+     handleMobileMenuClose();
+     handleMobileMenuClose();
+     removeUserSession();
+     window.location = "/login";
+    //  props.history.push("/login");
+   };
 
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
@@ -99,6 +111,7 @@ export default function Header() {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={logout}>Logout</MenuItem>
     </Menu>
   );
 

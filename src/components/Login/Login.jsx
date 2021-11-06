@@ -19,6 +19,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Header from "../Header/Header";
 import { Switch, Route, LocalStorage, Redirect, BrowserRouter as Router } from 'react-router-dom'
+import { setUserSession } from "../../Utils/Common";
 const baseURL = "http://localhost:3001/api/v1/";
 
 function Copyright() {
@@ -92,6 +93,8 @@ const Login = (props) => {
 
   console.log("i am gere");
 
+  const token = localStorage.getItem("token");
+
   const handleFormStatus = () => {
     setFormStatus(true);
   };
@@ -127,17 +130,19 @@ const Login = (props) => {
     })
       .then(function (response) {
         let data = response.data;
-        localStorage.setItem("token", data.token);
-        setloggedin(true);
         toast.success(data.message, {
           position: "top-center",
-          autoClose: 5000,
+          autoClose: 1000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
         });
+        setTimeout(() => {
+          setUserSession(response.data.token, response.data.user);
+          props.history.push("/tasks");
+        }, 1000);
       })
       .catch(function (error) {
         console.log("error", error);
@@ -159,8 +164,9 @@ const Login = (props) => {
     loginUser(email, password);
   };
 
-  if (loggedin) {
-    return <Redirect to="/Tasks" />;
+  const isLoggedIn = token ? true : false;
+  if (isLoggedIn) {
+    props.history.push("/tasks");
   }
   return (
     <Container component="main" maxWidth="xs">
